@@ -10,10 +10,22 @@ function required(name: string): string {
 }
 
 export const env = {
-  DATABASE_URL: required("DATABASE_URL"),
-  JWT_SECRET: required("JWT_SECRET"),
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
-  ADMIN_ACCESS_CODE: process.env.ADMIN_ACCESS_CODE || "kubedrill-admin",
-  K8S_PROVISIONER_URL: process.env.K8S_PROVISIONER_URL,
-  PORT: parseInt(process.env.PORT || "4000", 10),
+  get DATABASE_URL() {
+    return required("DATABASE_URL");
+  },
+  get JWT_SECRET() {
+    return required("JWT_SECRET");
+  },
+  get JWT_EXPIRES_IN() {
+    return process.env.JWT_EXPIRES_IN || "7d";
+  },
+  get ADMIN_ACCESS_CODE() {
+    return process.env.ADMIN_ACCESS_CODE || "kubedrill-admin";
+  },
+  get K8S_PROVISIONER_URL() {
+    return process.env.K8S_PROVISIONER_URL;
+  },
+  get PORT() {
+    return parseInt(process.env.PORT || "4000", 10);
+  },
 };

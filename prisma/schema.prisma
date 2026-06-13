@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionType {
+  MCQ
+  CODE
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          Role     @default(STUDENT)
+  created_at    DateTime @default(now())
+
+  attempts Attempt[]
+  blog_posts BlogPost[]
+
+  @@map("users")
+}
+
+model BlogPost {
+  id           String   @id
+  title        String
+  slug         String   @unique
+  excerpt      String
+  content      String
+  category     String
+  published    Boolean  @default(false)
+  author_id    String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  published_at DateTime?
+
+  author User @relation(fields: [author_id], references: [id], onDelete: Cascade)
+
+  @@index([published])
+  @@index([author_id])
+  @@map("blog_posts")
+}
+
+model Interview {
+  id               String     @id
+  title            String
+  description      String
+  difficulty       Difficulty
+  duration_minutes Int
+  category         String
+  published        Boolean    @default(false)
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+
+  questions Question[]
+  attempts  Attempt[]
+
+  @@map("interviews")
+}
+
+model Question {
+  id              String       @id
+  interview_id    String
+  type            QuestionType
+  category        String
+  prompt          String
+  options         Json?
+  correct_index   Int?
+  starter_code    String?
+  expected_answer String?
+  order           Int
+
+  interview Interview @relation(fields: [interview_id], references: [id], onDelete: Cascade)
+
+  @@index([interview_id])
+  @@map("questions")
+}
+
+model Attempt {
+  id           String   @id @default(uuid())
+  interview_id String
+  user_id      String
+  score        Int
+  total        Int
+  correct      Int
+  answers      Json
+  submitted_at DateTime @default(now())
+
+  interview Interview @relation(fields: [interview_id], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([interview_id])
+  @@index([user_id])
+  @@map("attempts")
+}

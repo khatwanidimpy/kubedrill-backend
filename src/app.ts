@@ -320,7 +320,7 @@ app.get("/", (_req, res) => {
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-app.use("/", todoRoutes);
+app.use("/todos", todoRoutes);
 app.use("/", lazyRoutes(() => import("./routes/auth.routes")));
 app.use("/", lazyRoutes(() => import("./routes/blog.routes")));
 app.use("/", lazyRoutes(() => import("./routes/interviews.routes")));

@@ -1,9 +1,5 @@
 import express from "express";
 import cors from "cors";
-import authRoutes from "./routes/auth.routes";
-import blogRoutes from "./routes/blog.routes";
-import interviewRoutes from "./routes/interviews.routes";
-import sessionRoutes from "./routes/sessions.routes";
 import todoRoutes from "./routes/todos.routes";
 import { errorHandler } from "./middleware/error";
 
@@ -11,6 +7,21 @@ export const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+function lazyRoutes(loader: () => Promise<{ default: express.Router }>): express.Router {
+  const router = express.Router();
+
+  router.use(async (req, res, next) => {
+    try {
+      const mod = await loader();
+      return mod.default(req, res, next);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  return router;
+}
 
 app.get("/", (_req, res) => {
   res.type("html").send(`<!doctype html>
@@ -309,10 +320,10 @@ app.get("/", (_req, res) => {
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-app.use("/", authRoutes);
-app.use("/", blogRoutes);
-app.use("/", interviewRoutes);
-app.use("/", sessionRoutes);
 app.use("/", todoRoutes);
+app.use("/", lazyRoutes(() => import("./routes/auth.routes")));
+app.use("/", lazyRoutes(() => import("./routes/blog.routes")));
+app.use("/", lazyRoutes(() => import("./routes/interviews.routes")));
+app.use("/", lazyRoutes(() => import("./routes/sessions.routes")));
 
 app.use(errorHandler);

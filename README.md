@@ -17,6 +17,19 @@ API runs at `http://localhost:4000`.
 
 ## Endpoints
 
+### Utility
+
+```text
+GET    /health             -> { ok }
+GET    /todos              -> { todos }
+POST   /todos              -> { todo }
+PATCH  /todos/:id          -> { todo }
+DELETE /todos/:id          -> 204
+```
+
+Todos are an in-memory demo route for the deployed homepage. They are useful for
+testing requests, but they are not persisted across server restarts.
+
 ### Auth
 
 #### POST /register
